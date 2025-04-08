@@ -5,7 +5,7 @@ exports.analyzeEntropy = (password) => {
 
   return {
     password,
-    entropy: result.guesses_log10.toFixed(2),  // estimated entropy
+    entropy: result.guesses_log10.toFixed(2),  
     crackTime: result.crack_times_display.offline_slow_hashing_1e4_per_second,
     strength: result.score === 4 ? 'Strong' :
               result.score === 3 ? 'Good' :

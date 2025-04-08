@@ -7,7 +7,7 @@ const personalInfoCheck = (password, { name, birthYear, city }) => {
   const isSimilar = (value) => {
     if (!value) return false;
     const lowerValue = value.toLowerCase();
-    return levenshtein.get(lowerPassword, lowerValue) <= 2; // Allow small differences (threshold: 2)
+    return levenshtein.get(lowerPassword, lowerValue) <= 2; 
   };
 
   const containsName = isSimilar(name);

@@ -1,11 +1,11 @@
 const fs = require('fs');
 
-// Read and clean up common passwords
+
 const commonPasswords = fs
   .readFileSync('./common-passwords.txt', 'utf-8')
   .split('\n')
-  .map(pwd => pwd.trim().toLowerCase()) // trim and lowercase each line
-  .filter(pwd => pwd.length > 0); // remove empty lines
+  .map(pwd => pwd.trim().toLowerCase()) 
+  .filter(pwd => pwd.length > 0); 
 
 exports.commonCheck = (password) => {
   const normalizedPassword = password.trim().toLowerCase();
