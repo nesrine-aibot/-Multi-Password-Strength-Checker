@@ -1,0 +1,42 @@
+### Test Entropy Check
+POST http://localhost:3000/api/entropy
+Content-Type: application/json
+
+{
+  "password": "password123"
+}
+
+### Test Common Check
+POST http://localhost:3000/api/common
+Content-Type: application/json
+
+{
+  "password": "123456"
+}
+
+### Test Variety Check
+POST http://localhost:3000/api/variety
+Content-Type: application/json
+
+{
+  "password": "Abc123!@#"
+}
+
+### Test Length Check
+POST http://localhost:3000/api/length
+Content-Type: application/json
+
+{
+  "password": "short"
+}
+
+### Test Personal Info Check
+POST http://localhost:3000/api/personal
+Content-Type: application/json
+
+{
+  "password": "jome",
+  "name": "John",
+  "birthYear": 1990,
+  "city": "New York"
+}
