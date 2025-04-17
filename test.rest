@@ -40,3 +40,15 @@ Content-Type: application/json
   "birthYear": 1990,
   "city": "New York"
 }
+
+
+### Password Suggestion
+POST http://localhost:3000/api/listSuggestion
+Content-Type: application/json
+
+{
+  "password": "me2004",
+  "name": "me",
+  "birthYear": 2004,
+  "city": "Alger"
+}
