@@ -15,6 +15,7 @@ const PasswordEvaluator = () => {
     isOlderThanYear: false
   });
   const [generatedPassword, setGeneratedPassword] = useState('');
+  const [enhancedPassword, setEnhancedPassword] = useState('');
 
   const getPasswordScore = () => {
     if (!strength) return 0;
@@ -128,22 +129,76 @@ const PasswordEvaluator = () => {
     return 'Critical Risk';
   };
 
+  const enhancePassword = (inputPassword) => {
+    if (!inputPassword) return '';
+    
+    // Keep the original password as base
+    let enhanced = inputPassword;
+    
+    // Add special characters if missing
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(enhanced)) {
+      const specialChars = '!@#$%^&*';
+      // Add special character at the end
+      enhanced += specialChars.charAt(Math.floor(Math.random() * specialChars.length));
+    }
+    
+    // Add uppercase if missing
+    if (!/[A-Z]/.test(enhanced)) {
+      // Convert first character to uppercase if it's a letter
+      if (/[a-z]/.test(enhanced[0])) {
+        enhanced = enhanced[0].toUpperCase() + enhanced.slice(1);
+      } else {
+        // If first character is not a letter, add uppercase at the end
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        enhanced += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+      }
+    }
+    
+    // Add numbers if missing
+    if (!/\d/.test(enhanced)) {
+      // Add number at the end
+      const numbers = '0123456789';
+      enhanced += numbers.charAt(Math.floor(Math.random() * numbers.length));
+    }
+    
+    // Add more length if needed
+    if (enhanced.length < 12) {
+      const randomChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+      const neededLength = 12 - enhanced.length;
+      // Add random characters at the end
+      for (let i = 0; i < neededLength; i++) {
+        enhanced += randomChars.charAt(Math.floor(Math.random() * randomChars.length));
+      }
+    }
+    
+    return enhanced;
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setEnhancedPassword(enhancePassword(newPassword));
+    
+    // Restore the original password evaluation
+    if (newPassword) {
+      const result = zxcvbn(newPassword);
+      setStrength(result);
+    } else {
+      setStrength(null);
+    }
+  };
+
+  const hasHighRiskAnswers = () => {
+    return Object.values(personalAnswers).some(answer => answer === true);
+  };
+
   return (
     <div className="password-evaluator">
       <div className="password-input-section">
         <input
           type="password"
           value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            // Only evaluate if there's input
-            if (e.target.value) {
-              const result = zxcvbn(e.target.value);
-              setStrength(result);
-            } else {
-              setStrength(null);
-            }
-          }}
+          onChange={handlePasswordChange}
           placeholder="Enter your password"
           className="password-input"
         />
@@ -286,27 +341,78 @@ const PasswordEvaluator = () => {
         </div>
       )}
 
-      {(strength?.score < 3 || Object.values(personalAnswers).some(answer => answer === true)) && (
-        <div className="suggestion-section">
-          <p className="weak-message">Your password is weak or potentially compromised</p>
-          <button onClick={generateStrongPassword} className="generate-button">
-            Generate a Strong Password
-          </button>
-          {generatedPassword && (
-            <div className="generated-password">
-              <input
-                type="text"
-                value={generatedPassword}
-                readOnly
-                className="generated-input"
-              />
-              <button onClick={copyToClipboard} className="copy-button">
-                Copy
-              </button>
+      {/* Password Suggestions Section */}
+      <div className="password-suggestions">
+        {(strength?.score < 3 || Object.values(personalAnswers).some(answer => answer === true)) && (
+          <div className="password-options">
+            <h2>Your Password Needs Improvement</h2>
+            <p className="weak-message">Choose one of these options to strengthen your password:</p>
+            
+            {/* Option 1: Enhanced Password */}
+            <div className="password-option enhanced-option">
+              <h3>Option 1: Enhanced Version of Your Password</h3>
+              {hasHighRiskAnswers() && (
+                <div className="warning-note">
+                  <span>⚠️ Note: Since you answered "Yes" to some security questions, we recommend using Option 2 for better security</span>
+                </div>
+              )}
+              <div className="enhanced-password-container">
+                <div className="enhanced-password">
+                  <span>{enhancedPassword}</span>
+                  <button onClick={() => navigator.clipboard.writeText(enhancedPassword)} className="copy-btn">
+                    Copy
+                  </button>
+                </div>
+                <p className="password-tip">
+                  We've enhanced your password by:
+                  <ul>
+                    <li>Keeping your original password as the base</li>
+                    <li>Adding special characters if missing</li>
+                    <li>Adding uppercase letters if missing</li>
+                    <li>Adding numbers if missing</li>
+                    <li>Ensuring minimum length of 12 characters</li>
+                  </ul>
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Option 2: Random Password */}
+            <div className="password-option random-option">
+              <h3>Option 2: Completely New Random Password</h3>
+              {hasHighRiskAnswers() && (
+                <div className="recommended-badge">
+                  <span>Recommended for your security</span>
+                </div>
+              )}
+              <button onClick={generateStrongPassword} className="generate-button">
+                Generate a New Strong Password
+              </button>
+              {generatedPassword && (
+                <div className="generated-password">
+                  <input
+                    type="text"
+                    value={generatedPassword}
+                    readOnly
+                    className="generated-input"
+                  />
+                  <button onClick={copyToClipboard} className="copy-button">
+                    Copy
+                  </button>
+                </div>
+              )}
+              <p className="password-tip">
+                This option creates a completely new password that:
+                <ul>
+                  <li>Is 16 characters long</li>
+                  <li>Contains uppercase and lowercase letters</li>
+                  <li>Includes numbers and special characters</li>
+                  <li>Has no similar characters</li>
+                </ul>
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
